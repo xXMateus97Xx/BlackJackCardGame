@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace CardGame;
+namespace BlackJackCardGame;
 
 class Deck
 {
@@ -9,8 +9,7 @@ class Deck
 
     public Deck()
     {
-        _cards = new Card[52]
-        {
+        _cards = [
             new Card("AC"),
             new Card("2C"),
             new Card("3C"),
@@ -63,7 +62,7 @@ class Deck
             new Card("JH"),
             new Card("QH"),
             new Card("KH")
-        };
+        ];
     }
 
     public (bool Success, Card Card) TryPickCard()
@@ -85,11 +84,7 @@ class Deck
         for (var i = 0; i < _cards.Length; i++)
         {
             var pos = random.Next(0, _cards.Length);
-            var currentCard = _cards[i];
-            var swapCard = _cards[pos];
-
-            _cards[i] = swapCard;
-            _cards[pos] = currentCard;
+            (_cards[i], _cards[pos]) = (_cards[pos], _cards[i]);
         }
     }
 
@@ -97,7 +92,7 @@ class Deck
     {
         var sb = new StringBuilder();
 
-        for (int i = 0; i < _cards.Length; i++)
+        for (var i = 0; i < _cards.Length; i++)
             sb.AppendLine(_cards[i].ToString());
 
         return sb.ToString();

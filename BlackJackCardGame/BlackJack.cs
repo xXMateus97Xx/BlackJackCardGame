@@ -1,4 +1,4 @@
-﻿namespace CardGame;
+﻿namespace BlackJackCardGame;
 
 class BlackJack
 {
@@ -15,19 +15,17 @@ class BlackJack
         _userCards = new Card[26];
     }
 
-    public IEnumerable<Card> EngineCards => _engineCards.Take(_engineCardPosition);
-    public IEnumerable<Card> UserCards => _userCards.Take(_userCardPosition);
+    public ReadOnlyMemory<Card> EngineCards => _engineCards.AsMemory(0,_engineCardPosition);
+    public ReadOnlyMemory<Card> UserCards => _userCards.AsMemory(0, _userCardPosition);
 
     public void StartGame()
     {
         Reset();
 
-        var result = new ValueTuple<Card, Card>();
-
-        result.Item1 = _userCards[0] = _deck.TryPickCard().Card;
+        _userCards[0] = _deck.TryPickCard().Card;
         _engineCards[0] = _deck.TryPickCard().Card;
 
-        result.Item2 = _userCards[1] = _deck.TryPickCard().Card;
+        _userCards[1] = _deck.TryPickCard().Card;
         _engineCards[1] = _deck.TryPickCard().Card;
 
         _userCardPosition = _engineCardPosition = 2;
@@ -74,21 +72,27 @@ class BlackJack
     public GameResult GetResult()
     {
         var userSum = SumCards(_userCards, _userCardPosition);
+        var engineSum = SumCards(_engineCards, _engineCardPosition);
+
+        if (userSum > 21 && engineSum > 21)
+            return GameResult.Draw;
+            
         if (userSum > 21)
             return GameResult.Lose;
-
-        var engineSum = SumCards(_engineCards, _engineCardPosition);
+        
+        if (engineSum > 21)
+            return GameResult.Win;
 
         if (userSum == engineSum)
             return GameResult.Draw;
 
-        return GameResult.Win;
+        return userSum > engineSum ? GameResult.Win : GameResult.Lose;
     }
 
     private static int SumCards(Card[] cards, int count)
     {
         var result = 0;
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             var card = cards[i];
             result += Math.Min(card.IntegerValue, 10);

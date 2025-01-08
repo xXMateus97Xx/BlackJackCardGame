@@ -1,4 +1,4 @@
-﻿using CardGame;
+﻿using BlackJackCardGame;
 
 var game = new BlackJack();
 
@@ -64,9 +64,9 @@ Console.WriteLine("Bye!");
 
 Console.ReadLine();
 
-static void PrintCards(IEnumerable<Card> cards)
+static void PrintCards(ReadOnlyMemory<Card> cards)
 {
-    foreach (var card in cards)
+    foreach (var card in cards.Span)
         Console.Write("{0} ", card);
 
     Console.WriteLine();
