@@ -21,14 +21,7 @@ class Card
     public char Rank { get; }
     public CardSuit Suit { get; }
 
-    public int IntegerValue
-    {
-        get
-        {
-            var val = CardRanks.IndexOf(Rank) + 1;
-            return val > 10 ? 10 : val;
-        }
-    }
+    public int IntegerValue => Math.Min(CardRanks.IndexOf(Rank) + 1, 10);
 
     public override string ToString() => $"{Rank}{(char)Suit}";
 }

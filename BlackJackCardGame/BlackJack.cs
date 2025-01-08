@@ -95,7 +95,7 @@ class BlackJack
         for (var i = 0; i < count; i++)
         {
             var card = cards[i];
-            result += Math.Min(card.IntegerValue, 10);
+            result += card.IntegerValue;
         }
 
         return result;
