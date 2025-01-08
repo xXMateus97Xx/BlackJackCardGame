@@ -1,6 +1,6 @@
 ﻿namespace BlackJackCardGame;
 
-class Card
+readonly struct Card
 {
     const string CardRanks = "A23456789TJQK";
 

@@ -94,7 +94,7 @@ class BlackJack
         var result = 0;
         for (var i = 0; i < count; i++)
         {
-            var card = cards[i];
+            ref var card = ref cards[i];
             result += card.IntegerValue;
         }
 

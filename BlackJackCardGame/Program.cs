@@ -67,7 +67,7 @@ Console.ReadLine();
 static void PrintCards(ReadOnlyMemory<Card> cards)
 {
     foreach (var card in cards.Span)
-        Console.Write("{0} ", card);
+        Console.Write("{0} ", card.ToString());
 
     Console.WriteLine();
 }

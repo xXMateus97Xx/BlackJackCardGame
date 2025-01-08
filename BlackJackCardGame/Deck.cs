@@ -70,7 +70,7 @@ class Deck
         if (_cardPosition < _cards.Length)
             return (true, _cards[_cardPosition++]);
 
-        return (false, null);
+        return (false, default);
     }
 
     public void Reset()
@@ -93,7 +93,10 @@ class Deck
         var sb = new StringBuilder();
 
         for (var i = 0; i < _cards.Length; i++)
-            sb.AppendLine(_cards[i].ToString());
+        {
+            ref var card = ref _cards[i];
+            sb.AppendLine(card.ToString());
+        }
 
         return sb.ToString();
     }
