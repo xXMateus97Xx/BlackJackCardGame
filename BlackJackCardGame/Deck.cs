@@ -9,59 +9,60 @@ class Deck
 
     public Deck()
     {
-        _cards = [
-            new Card("AC"),
-            new Card("2C"),
-            new Card("3C"),
-            new Card("4C"),
-            new Card("5C"),
-            new Card("6C"),
-            new Card("7C"),
-            new Card("8C"),
-            new Card("9C"),
-            new Card("TC"),
-            new Card("JC"),
-            new Card("QC"),
-            new Card("KC"),
-            new Card("AD"),
-            new Card("2D"),
-            new Card("3D"),
-            new Card("4D"),
-            new Card("5D"),
-            new Card("6D"),
-            new Card("7D"),
-            new Card("8D"),
-            new Card("9D"),
-            new Card("TD"),
-            new Card("JD"),
-            new Card("QD"),
-            new Card("KD"),
-            new Card("AS"),
-            new Card("2S"),
-            new Card("3S"),
-            new Card("4S"),
-            new Card("5S"),
-            new Card("6S"),
-            new Card("7S"),
-            new Card("8S"),
-            new Card("9S"),
-            new Card("TS"),
-            new Card("JS"),
-            new Card("QS"),
-            new Card("KS"),
-            new Card("AH"),
-            new Card("2H"),
-            new Card("3H"),
-            new Card("4H"),
-            new Card("5H"),
-            new Card("6H"),
-            new Card("7H"),
-            new Card("8H"),
-            new Card("9H"),
-            new Card("TH"),
-            new Card("JH"),
-            new Card("QH"),
-            new Card("KH")
+        _cards =
+        [
+            new Card('A', CardSuit.Clubs),
+            new Card('2', CardSuit.Clubs),
+            new Card('3', CardSuit.Clubs),
+            new Card('4', CardSuit.Clubs),
+            new Card('5', CardSuit.Clubs),
+            new Card('6', CardSuit.Clubs),
+            new Card('7', CardSuit.Clubs),
+            new Card('8', CardSuit.Clubs),
+            new Card('9', CardSuit.Clubs),
+            new Card('T', CardSuit.Clubs),
+            new Card('J', CardSuit.Clubs),
+            new Card('Q', CardSuit.Clubs),
+            new Card('K', CardSuit.Clubs),
+            new Card('A', CardSuit.Diamonds),
+            new Card('2', CardSuit.Diamonds),
+            new Card('3', CardSuit.Diamonds),
+            new Card('4', CardSuit.Diamonds),
+            new Card('5', CardSuit.Diamonds),
+            new Card('6', CardSuit.Diamonds),
+            new Card('7', CardSuit.Diamonds),
+            new Card('8', CardSuit.Diamonds),
+            new Card('9', CardSuit.Diamonds),
+            new Card('T', CardSuit.Diamonds),
+            new Card('J', CardSuit.Diamonds),
+            new Card('Q', CardSuit.Diamonds),
+            new Card('K', CardSuit.Diamonds),
+            new Card('A', CardSuit.Spades),
+            new Card('2', CardSuit.Spades),
+            new Card('3', CardSuit.Spades),
+            new Card('4', CardSuit.Spades),
+            new Card('5', CardSuit.Spades),
+            new Card('6', CardSuit.Spades),
+            new Card('7', CardSuit.Spades),
+            new Card('8', CardSuit.Spades),
+            new Card('9', CardSuit.Spades),
+            new Card('T', CardSuit.Spades),
+            new Card('J', CardSuit.Spades),
+            new Card('Q', CardSuit.Spades),
+            new Card('K', CardSuit.Spades),
+            new Card('A', CardSuit.Hearts),
+            new Card('2', CardSuit.Hearts),
+            new Card('3', CardSuit.Hearts),
+            new Card('4', CardSuit.Hearts),
+            new Card('5', CardSuit.Hearts),
+            new Card('6', CardSuit.Hearts),
+            new Card('7', CardSuit.Hearts),
+            new Card('8', CardSuit.Hearts),
+            new Card('9', CardSuit.Hearts),
+            new Card('T', CardSuit.Hearts),
+            new Card('J', CardSuit.Hearts),
+            new Card('Q', CardSuit.Hearts),
+            new Card('K', CardSuit.Hearts),
         ];
     }
 
@@ -80,10 +81,10 @@ class Deck
 
     public void Shuffle()
     {
-        var random = new Random();
+        var random = Xorshift32.Create();
         for (var i = 0; i < _cards.Length; i++)
         {
-            var pos = random.Next(0, _cards.Length);
+            var pos = random.Next(_cards.Length);
             (_cards[i], _cards[pos]) = (_cards[pos], _cards[i]);
         }
     }
@@ -93,12 +94,8 @@ class Deck
         var sb = new StringBuilder();
 
         for (var i = 0; i < _cards.Length; i++)
-        {
-            ref var card = ref _cards[i];
-            sb.AppendLine(card.ToString());
-        }
+            sb.AppendLine(_cards[i].ToString());
 
         return sb.ToString();
     }
 }
-

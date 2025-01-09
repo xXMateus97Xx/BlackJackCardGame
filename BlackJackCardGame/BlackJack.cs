@@ -11,12 +11,12 @@ class BlackJack
     public BlackJack()
     {
         _deck = new Deck();
-        _engineCards = new Card[26];
-        _userCards = new Card[26];
+        _engineCards = new Card[12];
+        _userCards = new Card[12];
     }
 
-    public ReadOnlyMemory<Card> EngineCards => _engineCards.AsMemory(0,_engineCardPosition);
-    public ReadOnlyMemory<Card> UserCards => _userCards.AsMemory(0, _userCardPosition);
+    public ReadOnlySpan<Card> EngineCards => _engineCards.AsSpan(0, _engineCardPosition);
+    public ReadOnlySpan<Card> UserCards => _userCards.AsSpan(0, _userCardPosition);
 
     public void StartGame()
     {
@@ -45,19 +45,25 @@ class BlackJack
 
     public bool PickCardForEngine()
     {
-        var engineSum = 21 - SumCards(_engineCards, _engineCardPosition);
-        if (engineSum == 0)
+        var engineSum = SumCards(_engineCards, _engineCardPosition);
+        if (engineSum == 21)
             return false;
 
         bool pickCard;
 
-        if (engineSum >= 4)
+        if (engineSum < 17)
+        {
             pickCard = true;
+        }
         else
-            pickCard = (new Random().Next() & 1) == 0;
+        {
+            var n = Xorshift32.Create().Next();
+            var f = 21 - engineSum + 4;
+            pickCard = (n % f) == 0;
+        }
 
         if (!pickCard)
-            return true;
+            return false;
 
         var (success, card) = _deck.TryPickCard();
         if (!success)
@@ -76,10 +82,10 @@ class BlackJack
 
         if (userSum > 21 && engineSum > 21)
             return GameResult.Draw;
-            
+
         if (userSum > 21)
             return GameResult.Lose;
-        
+
         if (engineSum > 21)
             return GameResult.Win;
 
@@ -93,10 +99,7 @@ class BlackJack
     {
         var result = 0;
         for (var i = 0; i < count; i++)
-        {
-            ref var card = ref cards[i];
-            result += card.IntegerValue;
-        }
+            result += cards[i].IntegerValue;
 
         return result;
     }
@@ -105,10 +108,11 @@ class BlackJack
     {
         _deck.Reset();
         _deck.Shuffle();
-        _userCardPosition = _engineCardPosition = 0;
 
-        Array.Clear(_userCards);
-        Array.Clear(_engineCards);
+        _userCards.AsSpan(0, _userCardPosition).Clear();
+        _engineCards.AsSpan(0, _engineCardPosition).Clear();
+
+        _userCardPosition = _engineCardPosition = 0;
     }
 }
 

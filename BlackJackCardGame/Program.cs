@@ -13,14 +13,13 @@ while (play)
 
     var userCanPick = true;
     var engineCanPick = true;
-    var pickCard = true;
-    while (userCanPick && engineCanPick)
+    while (userCanPick || engineCanPick)
     {
-        if (userCanPick && pickCard)
+        if (userCanPick)
         {
             Console.Write("Pick new card? (Y/n) ");
             var pick = Console.ReadLine();
-            pickCard = pick != "n" && pick != "N";
+            var pickCard = pick != "n" && pick != "N";
 
             if (pickCard)
             {
@@ -28,9 +27,13 @@ while (play)
                 Console.Write("Your Cards: ");
                 PrintCards(game.UserCards);
             }
+            else
+            {
+                userCanPick = false;
+            }
         }
 
-        if (userCanPick && engineCanPick)
+        if (engineCanPick)
             engineCanPick = game.PickCardForEngine();
     }
 
@@ -64,10 +67,21 @@ Console.WriteLine("Bye!");
 
 Console.ReadLine();
 
-static void PrintCards(ReadOnlyMemory<Card> cards)
+static void PrintCards(ReadOnlySpan<Card> cards)
 {
-    foreach (var card in cards.Span)
-        Console.Write("{0} ", card.ToString());
+    Span<char> cardsString = stackalloc char[cards.Length * 2 + (cards.Length - 1)];
 
-    Console.WriteLine();
+    var currentPos = cardsString;
+
+    for (var i = 0; i < cards.Length; i++)
+    {
+        cards[i].WriteToSpan(currentPos);
+        if (currentPos.Length > 2)
+        {
+            currentPos[2] = ' ';
+            currentPos = currentPos[3..];
+        }
+    }
+
+    Console.Out.WriteLine(cardsString);
 }

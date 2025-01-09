@@ -2,16 +2,14 @@
 
 readonly struct Card
 {
-    const string CardRanks = "A23456789TJQK";
+    static ReadOnlySpan<char> CardRanks => "A23456789TJQK";
 
-    public Card(string card)
+    public Card(char rank, CardSuit suit)
     {
-        var rank = card[0];
         if (!CardRanks.Contains(rank))
             throw new ArgumentException($"Invalid rank {rank}");
 
-        var suit = (CardSuit)(short)card[1];
-        if (!Enum.IsDefined(suit))
+        if (suit != CardSuit.Clubs && suit != CardSuit.Diamonds && suit != CardSuit.Hearts && suit != CardSuit.Spades)
             throw new ArgumentException($"Invalid suit {suit}");
 
         Rank = rank;
@@ -24,12 +22,18 @@ readonly struct Card
     public int IntegerValue => Math.Min(CardRanks.IndexOf(Rank) + 1, 10);
 
     public override string ToString() => $"{Rank}{(char)Suit}";
+
+    public void WriteToSpan(Span<char> destination)
+    {
+        destination[0] = Rank;
+        destination[1] = (char)Suit;
+    }
 }
 
 enum CardSuit : short
 {
     Hearts = (short)'H',
-    Diamonds =  (short)'D',
+    Diamonds = (short)'D',
     Clubs = (short)'C',
     Spades = (short)'S',
 }
