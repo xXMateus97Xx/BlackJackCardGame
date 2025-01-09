@@ -25,8 +25,11 @@ readonly struct Card
 
     public void WriteToSpan(Span<char> destination)
     {
-        destination[1] = (char)Suit;
-        destination[0] = Rank;
+        if (destination.Length > 1)
+        {
+            destination[0] = Rank;
+            destination[1] = (char)Suit;
+        }
     }
 }
 

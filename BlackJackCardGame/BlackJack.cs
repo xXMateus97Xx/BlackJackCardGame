@@ -31,23 +31,26 @@ class BlackJack
         _userCardPosition = _engineCardPosition = 2;
     }
 
-    public bool PickCardForUser()
+    public RoundState PickCardForUser()
     {
         var (success, card) = _deck.TryPickCard();
         if (!success)
-            return false;
+            return RoundState.Stop;
 
         _userCards[_userCardPosition++] = card;
         var userSum = SumCards(_userCards, _userCardPosition);
 
-        return userSum < 21;
+        if (userSum > 21)
+            return RoundState.Lose;
+        
+        return userSum < 21 ? RoundState.Continue : RoundState.Stop;
     }
 
-    public bool PickCardForEngine()
+    public RoundState PickCardForEngine()
     {
         var engineSum = SumCards(_engineCards, _engineCardPosition);
         if (engineSum == 21)
-            return false;
+            return RoundState.Stop;
 
         bool pickCard;
 
@@ -59,20 +62,23 @@ class BlackJack
         {
             var n = Xorshift32.Create().Next();
             var f = 21 - engineSum + 4;
-            pickCard = (n % f) == 0;
+            pickCard = n % f == 0;
         }
 
         if (!pickCard)
-            return false;
+            return RoundState.Stop;
 
         var (success, card) = _deck.TryPickCard();
         if (!success)
-            return false;
+            return RoundState.Stop;
 
         _engineCards[_engineCardPosition++] = card;
         engineSum = SumCards(_engineCards, _engineCardPosition);
 
-        return engineSum < 21;
+        if (engineSum > 21)
+            return RoundState.Lose;
+        
+        return engineSum < 21 ? RoundState.Continue : RoundState.Stop;
     }
 
     public GameResult GetResult()
@@ -121,4 +127,11 @@ enum GameResult
     Win,
     Lose,
     Draw
+}
+
+enum RoundState
+{
+    Continue,
+    Stop,
+    Lose
 }
