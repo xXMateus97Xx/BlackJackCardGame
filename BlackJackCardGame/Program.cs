@@ -11,11 +11,11 @@ while (play)
     Console.Write("Your Cards: ");
     PrintCards(game.UserCards);
 
-    var userCanPick = RoundState.Continue;
-    var engineCanPick = RoundState.Continue;
-    while (userCanPick == RoundState.Continue || engineCanPick == RoundState.Continue)
+    var userState = RoundState.Continue;
+    var engineState = RoundState.Continue;
+    while (userState == RoundState.Continue || engineState == RoundState.Continue)
     {
-        if (userCanPick == RoundState.Continue)
+        if (userState == RoundState.Continue)
         {
             Console.Write("Pick new card? (Y/n) ");
             var pick = Console.ReadLine();
@@ -23,23 +23,23 @@ while (play)
 
             if (pickCard)
             {
-                userCanPick = game.PickCardForUser();
+                userState = game.PickCardForUser();
                 Console.Write("Your Cards: ");
                 PrintCards(game.UserCards);
             }
             else
             {
-                userCanPick = RoundState.Stop;
+                userState = RoundState.Stop;
             }
         }
 
-        if (userCanPick == RoundState.Lose)
+        if (userState == RoundState.Lose)
             break;
 
-        if (engineCanPick == RoundState.Continue)
-            engineCanPick = game.PickCardForEngine();
+        if (engineState == RoundState.Continue)
+            engineState = game.PickCardForEngine();
 
-        if (engineCanPick == RoundState.Lose)
+        if (engineState == RoundState.Lose)
             break;
     }
 
