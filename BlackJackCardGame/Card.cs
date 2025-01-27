@@ -1,4 +1,7 @@
-﻿namespace BlackJackCardGame;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace BlackJackCardGame;
 
 readonly struct Card
 {
@@ -30,7 +33,8 @@ readonly struct Card
     {
         if (destination.Length > 1)
         {
-            destination[0] = CardRanks[(short)Rank & 0xF];
+            ref var ranks = ref MemoryMarshal.GetReference(CardRanks);
+            destination[0] = Unsafe.Add(ref ranks, (short)Rank & 0xF);
             destination[1] = (char)Suit;
         }
     }
