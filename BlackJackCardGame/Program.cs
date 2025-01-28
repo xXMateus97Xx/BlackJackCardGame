@@ -1,4 +1,6 @@
-﻿using BlackJackCardGame;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using BlackJackCardGame;
 
 var game = new BlackJack();
 
@@ -75,19 +77,26 @@ Console.ReadLine();
 
 static void PrintCards(ReadOnlySpan<Card> cards)
 {
-    Span<char> cardsString = stackalloc char[cards.Length * 2 + (cards.Length - 1)];
+    if (cards.Length == 0)
+        return;
 
-    var currentPos = cardsString;
+    Span<char> cardsString = stackalloc char[40];
 
-    for (var i = 0; i < cards.Length; i++)
+    ref var currentPos = ref MemoryMarshal.GetReference(cardsString);
+    ref var cardsSpan = ref MemoryMarshal.GetReference(cards);
+
+    var wrote = 0;
+
+    for (var i = 0; i < cards.Length; i++, wrote += 3)
     {
-        cards[i].WriteToSpan(currentPos);
-        if (currentPos.Length > 2)
-        {
-            currentPos[2] = ' ';
-            currentPos = currentPos[3..];
-        }
+        Unsafe.Add(ref cardsSpan, i).WriteToSpan(MemoryMarshal.CreateSpan(ref currentPos, 2));
+        Unsafe.Add(ref currentPos, 2) = ' ';
+        currentPos = ref Unsafe.Add(ref currentPos, 3);
     }
 
-    Console.Out.WriteLine(cardsString);
+    wrote--;
+
+    var print = MemoryMarshal.CreateSpan(ref MemoryMarshal.GetReference(cardsString), wrote);
+
+    Console.Out.WriteLine(print);
 }

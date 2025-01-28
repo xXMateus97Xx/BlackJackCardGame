@@ -1,4 +1,7 @@
-﻿namespace BlackJackCardGame;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace BlackJackCardGame;
 
 class BlackJack
 {
@@ -15,18 +18,24 @@ class BlackJack
         _userCards = new Card[12];
     }
 
-    public ReadOnlySpan<Card> EngineCards => _engineCards.AsSpan(0, _engineCardPosition);
-    public ReadOnlySpan<Card> UserCards => _userCards.AsSpan(0, _userCardPosition);
+    public ReadOnlySpan<Card> EngineCards =>
+        MemoryMarshal.CreateReadOnlySpan(ref MemoryMarshal.GetArrayDataReference(_engineCards), _engineCardPosition);
+
+    public ReadOnlySpan<Card> UserCards =>
+        MemoryMarshal.CreateReadOnlySpan(ref MemoryMarshal.GetArrayDataReference(_userCards), _userCardPosition);
 
     public void StartGame()
     {
         Reset();
 
-        _userCards[0] = _deck.TryPickCard().Card;
-        _engineCards[0] = _deck.TryPickCard().Card;
+        ref var userCards = ref MemoryMarshal.GetArrayDataReference(_userCards);
+        ref var engineCards = ref MemoryMarshal.GetArrayDataReference(_engineCards);
 
-        _userCards[1] = _deck.TryPickCard().Card;
-        _engineCards[1] = _deck.TryPickCard().Card;
+        Unsafe.Add(ref userCards, 0) = _deck.TryPickCard().Card;
+        Unsafe.Add(ref engineCards, 0) = _deck.TryPickCard().Card;
+
+        Unsafe.Add(ref userCards,1) = _deck.TryPickCard().Card;
+        Unsafe.Add(ref engineCards,1) = _deck.TryPickCard().Card;
 
         _userCardPosition = _engineCardPosition = 2;
     }
@@ -37,18 +46,20 @@ class BlackJack
         if (!success)
             return RoundState.Stop;
 
-        _userCards[_userCardPosition++] = card;
-        var userSum = SumCards(_userCards, _userCardPosition);
+        ref var userCards = ref MemoryMarshal.GetArrayDataReference(_userCards);
+        Unsafe.Add(ref userCards, _userCardPosition++) = card;
+        var userSum = SumCards(ref userCards, _userCardPosition);
 
         if (userSum > 21)
             return RoundState.Lose;
-        
+
         return userSum < 21 ? RoundState.Continue : RoundState.Stop;
     }
 
     public RoundState PickCardForEngine()
     {
-        var engineSum = SumCards(_engineCards, _engineCardPosition);
+        ref var engineCards = ref MemoryMarshal.GetArrayDataReference(_engineCards);
+        var engineSum = SumCards(ref engineCards, _engineCardPosition);
         if (engineSum == 21)
             return RoundState.Stop;
 
@@ -72,19 +83,19 @@ class BlackJack
         if (!success)
             return RoundState.Stop;
 
-        _engineCards[_engineCardPosition++] = card;
-        engineSum = SumCards(_engineCards, _engineCardPosition);
+        Unsafe.Add(ref engineCards, _engineCardPosition++) = card;
+        engineSum = SumCards(ref engineCards, _engineCardPosition);
 
         if (engineSum > 21)
             return RoundState.Lose;
-        
+
         return engineSum < 21 ? RoundState.Continue : RoundState.Stop;
     }
 
     public GameResult GetResult()
     {
-        var userSum = SumCards(_userCards, _userCardPosition);
-        var engineSum = SumCards(_engineCards, _engineCardPosition);
+        var userSum = SumCards(ref MemoryMarshal.GetArrayDataReference(_userCards), _userCardPosition);
+        var engineSum = SumCards(ref MemoryMarshal.GetArrayDataReference(_engineCards), _engineCardPosition);
 
         if (userSum > 21 && engineSum > 21)
             return GameResult.Draw;
@@ -101,11 +112,11 @@ class BlackJack
         return userSum > engineSum ? GameResult.Win : GameResult.Lose;
     }
 
-    private static int SumCards(Card[] cards, int count)
+    private static int SumCards(ref Card cards, int count)
     {
         var result = 0;
         for (var i = 0; i < count; i++)
-            result += cards[i].IntegerValue;
+            result += Unsafe.Add(ref cards, i).IntegerValue;
 
         return result;
     }
@@ -115,8 +126,8 @@ class BlackJack
         _deck.Reset();
         _deck.Shuffle();
 
-        _userCards.AsSpan(0, _userCardPosition).Clear();
-        _engineCards.AsSpan(0, _engineCardPosition).Clear();
+        MemoryMarshal.CreateSpan(ref MemoryMarshal.GetArrayDataReference(_userCards), _userCardPosition).Clear();
+        MemoryMarshal.CreateSpan(ref MemoryMarshal.GetArrayDataReference(_engineCards), _engineCardPosition).Clear();
 
         _userCardPosition = _engineCardPosition = 0;
     }

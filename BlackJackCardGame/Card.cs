@@ -9,15 +9,6 @@ readonly struct Card
 
     public Card(CardRank rank, CardSuit suit)
     {
-        if (rank != CardRank.A && rank != CardRank.Two && rank != CardRank.Three && rank != CardRank.Four &&
-            rank != CardRank.Five && rank != CardRank.Six && rank != CardRank.Seven && rank != CardRank.Eight &&
-            rank != CardRank.Nine && rank != CardRank.Ten && rank != CardRank.J && rank != CardRank.Q &&
-            rank != CardRank.K)
-            throw new ArgumentException($"Invalid rank {rank}");
-
-        if (suit != CardSuit.Clubs && suit != CardSuit.Diamonds && suit != CardSuit.Hearts && suit != CardSuit.Spades)
-            throw new ArgumentException($"Invalid suit {suit}");
-
         Rank = rank;
         Suit = suit;
     }
@@ -25,16 +16,18 @@ readonly struct Card
     public CardRank Rank { get; }
     public CardSuit Suit { get; }
 
-    public int IntegerValue => ((short)Rank & 0xF0) >> 4;
+    public int IntegerValue => ((byte)Rank & 0xF0) >> 4;
 
-    public override string ToString() => $"{CardRanks[(short)Rank & 0xF]}{(char)Suit}";
+#if DEBUG
+    public override string ToString() => $"{CardRanks[(byte)Rank & 0xF]}{(char)Suit}";
+#endif
 
     public void WriteToSpan(Span<char> destination)
     {
         if (destination.Length > 1)
         {
             ref var ranks = ref MemoryMarshal.GetReference(CardRanks);
-            destination[0] = Unsafe.Add(ref ranks, (short)Rank & 0xF);
+            destination[0] = Unsafe.Add(ref ranks, (byte)Rank & 0xF);
             destination[1] = (char)Suit;
         }
     }
@@ -42,7 +35,7 @@ readonly struct Card
 
 /* Os 4 bits mais significativos guardam o valor inteiro da carta
    Os 4 bits menos significativos guardam a posição da letra no CardRanks */
-enum CardRank : short
+enum CardRank : byte
 {
     A = 1 << 4,
     Two = 1 | 2 << 4,
@@ -59,10 +52,10 @@ enum CardRank : short
     K = 12 | 10 << 4,
 }
 
-enum CardSuit : short
+enum CardSuit : byte
 {
-    Hearts = (short)'H',
-    Diamonds = (short)'D',
-    Clubs = (short)'C',
-    Spades = (short)'S',
+    Hearts = (byte)'H',
+    Diamonds = (byte)'D',
+    Clubs = (byte)'C',
+    Spades = (byte)'S',
 }

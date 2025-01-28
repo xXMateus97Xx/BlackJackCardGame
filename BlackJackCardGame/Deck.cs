@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace BlackJackCardGame;
 
@@ -68,8 +70,14 @@ class Deck
 
     public (bool Success, Card Card) TryPickCard()
     {
-        if (_cardPosition < _cards.Length)
-            return (true, _cards[_cardPosition++]);
+        var pos = _cardPosition;
+        var cards = _cards;
+        if (pos < cards.Length)
+        {
+            ref var cardsRef = ref MemoryMarshal.GetArrayDataReference(cards);
+            _cardPosition++;
+            return (true, Unsafe.Add(ref cardsRef, pos));
+        }
 
         return (false, default);
     }
@@ -82,13 +90,18 @@ class Deck
     public void Shuffle()
     {
         var random = Xorshift32.Create();
-        for (var i = 0; i < _cards.Length; i++)
+        var cards = _cards;
+        ref var cardsRef = ref MemoryMarshal.GetArrayDataReference(cards);
+        for (var i = 0; i < cards.Length; i++)
         {
-            var pos = random.Next(_cards.Length);
-            (_cards[i], _cards[pos]) = (_cards[pos], _cards[i]);
+            var pos = random.Next(cards.Length);
+            var c1 = Unsafe.Add(ref cardsRef, i);
+            Unsafe.Add(ref cardsRef, i) = Unsafe.Add(ref cardsRef, pos);
+            Unsafe.Add(ref cardsRef, pos) = c1;
         }
     }
 
+#if DEBUG
     public override string ToString()
     {
         var sb = new StringBuilder();
@@ -98,4 +111,5 @@ class Deck
 
         return sb.ToString();
     }
+#endif
 }
