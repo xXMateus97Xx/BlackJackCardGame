@@ -2,18 +2,13 @@
 
 namespace BlackJackCardGame;
 
-struct Xorshift32
+struct Xorshift32(uint seed)
 {
-    private uint _state;
+    private uint _state = seed;
 
     public static Xorshift32 Create()
     {
         return new Xorshift32((uint)DateTime.UtcNow.Ticks);
-    }
-
-    public Xorshift32(uint seed)
-    {
-        _state = seed;
     }
 
     public int Next() => NextCore();

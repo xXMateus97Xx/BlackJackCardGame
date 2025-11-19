@@ -3,18 +3,12 @@ using System.Runtime.InteropServices;
 
 namespace BlackJackCardGame;
 
-readonly struct Card
+readonly struct Card(CardRank rank, CardSuit suit)
 {
     static ReadOnlySpan<char> CardRanks => "A23456789TJQK";
 
-    public Card(CardRank rank, CardSuit suit)
-    {
-        Rank = rank;
-        Suit = suit;
-    }
-
-    public CardRank Rank { get; }
-    public CardSuit Suit { get; }
+    public CardRank Rank { get; } = rank;
+    public CardSuit Suit { get; } = suit;
 
     public int IntegerValue => ((byte)Rank & 0xF0) >> 4;
 
