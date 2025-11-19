@@ -31,19 +31,19 @@ class BlackJack
         ref var userCards = ref MemoryMarshal.GetArrayDataReference(_userCards);
         ref var engineCards = ref MemoryMarshal.GetArrayDataReference(_engineCards);
 
-        Unsafe.Add(ref userCards, 0) = _deck.TryPickCard().Card;
-        Unsafe.Add(ref engineCards, 0) = _deck.TryPickCard().Card;
+        Unsafe.Add(ref userCards, 0) = _deck.PickCard();
+        Unsafe.Add(ref engineCards, 0) = _deck.PickCard();
 
-        Unsafe.Add(ref userCards,1) = _deck.TryPickCard().Card;
-        Unsafe.Add(ref engineCards,1) = _deck.TryPickCard().Card;
+        Unsafe.Add(ref userCards, 1) = _deck.PickCard();
+        Unsafe.Add(ref engineCards, 1) = _deck.PickCard();
 
         _userCardPosition = _engineCardPosition = 2;
     }
 
     public RoundState PickCardForUser()
     {
-        var (success, card) = _deck.TryPickCard();
-        if (!success)
+        var card = _deck.PickCard();
+        if (card.IsDefault)
             return RoundState.Stop;
 
         ref var userCards = ref MemoryMarshal.GetArrayDataReference(_userCards);
@@ -79,8 +79,8 @@ class BlackJack
         if (!pickCard)
             return RoundState.Stop;
 
-        var (success, card) = _deck.TryPickCard();
-        if (!success)
+        var card = _deck.PickCard();
+        if (card.IsDefault)
             return RoundState.Stop;
 
         Unsafe.Add(ref engineCards, _engineCardPosition++) = card;

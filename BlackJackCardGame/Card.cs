@@ -12,6 +12,8 @@ readonly struct Card(CardRank rank, CardSuit suit)
 
     public int IntegerValue => ((byte)Rank & 0xF0) >> 4;
 
+    public bool IsDefault => Rank == default;
+
 #if DEBUG
     public override string ToString() => $"{CardRanks[(byte)Rank & 0xF]}{(char)Suit}";
 #endif

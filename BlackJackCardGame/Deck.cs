@@ -68,7 +68,7 @@ class Deck
         ];
     }
 
-    public (bool Success, Card Card) TryPickCard()
+    public Card PickCard()
     {
         var pos = _cardPosition;
         var cards = _cards;
@@ -76,10 +76,10 @@ class Deck
         {
             ref var cardsRef = ref MemoryMarshal.GetArrayDataReference(cards);
             _cardPosition++;
-            return (true, Unsafe.Add(ref cardsRef, pos));
+            return Unsafe.Add(ref cardsRef, pos);
         }
 
-        return (false, default);
+        return default;
     }
 
     public void Reset()
